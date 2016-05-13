@@ -1,6 +1,6 @@
 (ns lean-poker.player)
 
-(def version "Clojure-y folding player")
+(def version "Clojure-y pairs")
 
 (def game-state {:game_id "550da1cb2d909006e90004b1",
                  :dealer 1,
@@ -28,7 +28,6 @@
   [rank cards]
   (= 2 (count
          (filter #(= rank (:rank %1))
-
                  cards))))
 
 (defn bet-request
@@ -38,8 +37,8 @@
          us (first (filter (fn [player] (seq (:hole_cards player))) players))
          hole-cards (:hole_cards us)]
      (if (have-pair? (:rank (first hole-cards)) hole-cards)
-       100
-       0))))
+       500
+       200))))
 
 (defn showdown
   [game-state]
