@@ -24,6 +24,8 @@
                  :bet_index 0,
                  :pot 400})
 
+(def suits ["hearts" "spades" "diamonds" "clubs"])
+
 (defn have-pair?
   [rank cards]
   (= 2 (count
@@ -32,18 +34,27 @@
 
 (defn face-card [card]
   (some #{\A \K \Q \J \0} (:rank card)))
+(defn is-flush [cards]
+  (some identity (map (fn [suit] (= 5 (count (filter #(= suit (:suit %1)) cards)))) suits)))
 
-(defn decent-hand
+(defn high-ranked-hand
   [cards]
   (every? identity (map face-card cards)))
 
 (defn get-us [{:keys [players]}]
   (first (filter (fn [player] (seq (:hole_cards player))) players)))
 
+(defn all-in [game-state]
+  (let [us (get-us game-state)]
+    (:stack us)))
+
 (defn call [game-state]
   (let [highest-bet (apply max (map :bet (:players game-state)))
         our-bet (:bet (get-us game-state))]
     (- highest-bet our-bet)))
+
+(defn after-flop [game-state]
+  (some? (:community_cards game-state)))
 
 (defn bet-request
   ([] (bet-request game-state))
@@ -52,10 +63,16 @@
          us (get-us game-state)
          hole-cards (:hole_cards us)
          all-cards (concat hole-cards community_cards)]
-     (if (or decent-hand 
-             (have-pair? (:rank (first hole-cards)) hole-cards))
-       500
-       (call game-state)))))
+
+     (if (not (after-flop game-state))
+       (cond
+         (high-ranked-hand hole-cards) 200
+         (have-pair? (:rank (first hole-cards)) hole-cards) 500
+         :default 0)
+
+       (cond
+         (is-flush all-cards) (all-in game-state)
+         :default (call game-state))))))                                                ;fold
 
 (defn showdown
   [game-state]
