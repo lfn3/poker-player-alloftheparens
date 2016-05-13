@@ -18,7 +18,7 @@
                             :version "Default random player",
                             :stack 1590,
                             :bet 80,
-                            :hole_cards [{:rank "6", :suit "hearts"} {:rank "6", :suit "spades"}]}
+                            :hole_cards [{:rank "A", :suit "hearts"} {:rank "6", :suit "spades"}]}
                            {:id 2, :name "Chuck", :status "out", :version "Default random player", :stack 0, :bet 0}],
                  :small_blind 10,
                  :bet_index 0,
@@ -30,15 +30,24 @@
          (filter #(= rank (:rank %1))
                  cards))))
 
+(defn get-us [{:keys [players]}]
+  (first (filter (fn [player] (seq (:hole_cards player))) players)))
+
+(defn call [game-state]
+  (let [highest-bet (apply max (map :bet (:players game-state)))
+        our-bet (:bet (get-us game-state))]
+    (- highest-bet our-bet)))
+
 (defn bet-request
   ([] (bet-request game-state))
   ([game-state]
    (let [{:keys [community_cards players]} game-state
-         us (first (filter (fn [player] (seq (:hole_cards player))) players))
-         hole-cards (:hole_cards us)]
+         us (get-us game-state)
+         hole-cards (:hole_cards us)
+         all-cards (concat hole-cards community_cards)]
      (if (have-pair? (:rank (first hole-cards)) hole-cards)
        500
-       200))))
+       (call game-state)))))
 
 (defn showdown
   [game-state]
