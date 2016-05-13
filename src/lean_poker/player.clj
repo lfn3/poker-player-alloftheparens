@@ -30,6 +30,13 @@
          (filter #(= rank (:rank %1))
                  cards))))
 
+(defn face-card [card]
+  (some #{\A \K \Q \J \0} (:rank card)))
+
+(defn decent-hand
+  [cards]
+  (every? identity (map face-card cards)))
+
 (defn get-us [{:keys [players]}]
   (first (filter (fn [player] (seq (:hole_cards player))) players)))
 
@@ -45,7 +52,8 @@
          us (get-us game-state)
          hole-cards (:hole_cards us)
          all-cards (concat hole-cards community_cards)]
-     (if (have-pair? (:rank (first hole-cards)) hole-cards)
+     (if (or decent-hand 
+             (have-pair? (:rank (first hole-cards)) hole-cards))
        500
        (call game-state)))))
 
