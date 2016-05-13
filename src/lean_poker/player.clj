@@ -66,8 +66,8 @@
 
      (if (not (after-flop game-state))
        (cond
-         (high-ranked-hand hole-cards) 200
          (have-pair? (:rank (first hole-cards)) hole-cards) 500
+         (high-ranked-hand hole-cards) 200
          :default 0)
 
        (cond
