@@ -73,8 +73,8 @@
 (defn is-straight
   ([cards]
    (let [cards-nums (sort (map (comp to-number :rank) cards))
-         partitioned-cards-on-table (map #(partition 5 (drop %1 cards-nums)) (range 2))]
-     )))
+         partitioned-cards-on-table (mapcat #(partition 5 (drop %1 cards-nums)) (range 3))]
+     (map ))))
 
 (defn connected-hand
   [cards]
@@ -113,10 +113,10 @@
        (cond
          (have-pair? (:rank (first hole-cards)) hole-cards)
          (do (prn "Pair hole")
-             500)
+             (max (call game-state) 500))
          (high-ranked-hand hole-cards)
          (do (prn "High ranked hole")
-             200)
+             (max (call game-state) 200))
          (and (connected-hand hole-cards) (suited hole-cards))
          (do (prn "Connected hole")
            (call-to-10x-blind game-state))
@@ -125,7 +125,7 @@
 
        (cond
          (is-flush all-cards)
-         (do (prn "")
+         (do (prn "flush on the table")
            (all-in game-state))
          (not (have-pair? all-cards))
             0

@@ -9,7 +9,7 @@
                                :status     "active",
                                :version    "Default random player",
                                :stack      1590,
-                               :bet        0,
+                               :bet        200,
                                :hole_cards [{:rank "A", :suit "diamonds"} {:rank "10", :suit "diamonds"}]}
                               {:id         2,
                                :name       "Bob",
