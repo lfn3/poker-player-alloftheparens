@@ -9,8 +9,15 @@
                                :status     "active",
                                :version    "Default random player",
                                :stack      1590,
-                               :bet        80,
-                               :hole_cards [{:rank "A", :suit "hearts"} {:rank "K", :suit "spades"}]}]}]
+                               :bet        0,
+                               :hole_cards [{:rank "A", :suit "diamonds"} {:rank "10", :suit "diamonds"}]}
+                              {:id         2,
+                               :name       "Bob",
+                               :status     "active",
+                               :version    "Default random player",
+                               :stack      1590,
+                               :bet        0,
+                               :hole_cards []}]}]
     (is (= 200 (player/bet-request game-state)))))
 
 (deftest have-pair

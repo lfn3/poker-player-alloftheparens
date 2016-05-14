@@ -27,6 +27,9 @@
 (def suits ["hearts" "spades" "diamonds" "clubs"])
 (def ranks (map str (concat (range 2 11) ["J" "Q" "K" "A"])))
 
+(defn get-us [{:keys [players]}]
+  (first (filter (fn [player] (seq (:hole_cards player))) players)))
+
 (defn highest-bet
   [game-state]
   (apply max (map :bet (:players game-state))))
@@ -65,6 +68,14 @@
     (= "J" rank) 11
     :default (read-string rank)))
 
+(def all-straights (map #(first (partition 5 (drop %1 (range 2 15)))) (range 9)))
+
+(defn is-straight
+  ([cards]
+   (let [cards-nums (sort (map (comp to-number :rank) cards))
+         partitioned-cards-on-table (map #(partition 5 (drop %1 cards-nums)) (range 2))]
+     )))
+
 (defn connected-hand
   [cards]
   (let [[first second] (map (comp to-number :rank) cards)]
@@ -82,9 +93,6 @@
 (defn high-ranked-hand
   [cards]
   (every? identity (map face-card cards)))
-
-(defn get-us [{:keys [players]}]
-  (first (filter (fn [player] (seq (:hole_cards player))) players)))
 
 (defn all-in [game-state]
   (let [us (get-us game-state)]
@@ -104,16 +112,21 @@
      (if (not (after-flop game-state))
        (cond
          (have-pair? (:rank (first hole-cards)) hole-cards)
-            500
+         (do (prn "Pair hole")
+             500)
          (high-ranked-hand hole-cards)
-            200
+         (do (prn "High ranked hole")
+             200)
          (and (connected-hand hole-cards) (suited hole-cards))
-            (call-to-10x-blind game-state)
-         :default 0)
+         (do (prn "Connected hole")
+           (call-to-10x-blind game-state))
+         :default (do (prn "Default hole")
+                    0))
 
        (cond
          (is-flush all-cards)
-            (all-in game-state)
+         (do (prn "")
+           (all-in game-state))
          (not (have-pair? all-cards))
             0
          :default (call game-state))))))                                                ;fold
