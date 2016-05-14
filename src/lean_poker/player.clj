@@ -72,9 +72,9 @@
 
 (defn is-straight
   ([cards]
-   (let [cards-nums (sort (map (comp to-number :rank) cards))
+   (let [cards-nums (sort (distinct (map (comp to-number :rank) cards)))
          partitioned-cards-on-table (mapcat #(partition 5 (drop %1 cards-nums)) (range 3))]
-   )))
+     (some identity (mapcat #(map (partial = %1) all-straights) partitioned-cards-on-table)))))
 
 (defn connected-hand
   [cards]
@@ -127,6 +127,9 @@
          (is-flush all-cards)
          (do (prn "flush on the table")
            (all-in game-state))
+         (is-straight all-cards)
+         (do (prn "straight on the table")
+             (all-in game-state))
          (not (have-pair? all-cards))
             0
          :default (call game-state))))))                                                ;fold
