@@ -31,6 +31,9 @@
 (defn get-us [{:keys [players]}]
   (first (filter (fn [player] (seq (:hole_cards player))) players)))
 
+(defn times-blind [game-state blind-multipler]
+  (* blind-multipler (:small_blind game-state)))
+
 (defn highest-bet
   [game-state]
   (apply max (map :bet (:players game-state))))
@@ -117,6 +120,9 @@
   (and (high-ranked-hand cards)
        (some #(= (:rank %1) "A") cards)))
 
+(defn strong-pair
+  [cards]
+  (<= 8 (to-number (:rank (first cards)))))
 
 (defn all-in [game-state]
   (let [us (get-us game-state)]
@@ -136,15 +142,18 @@
      (if (not (after-flop game-state))
        (do (log/info "Our cards" hole-cards)
          (cond
+           (and (have-pair? hole-cards) (strong-pair hole-cards))
+           (do (log/info "Strong Pair hole")
+               (max (call game-state) 300))
           (have-pair? (:rank (first hole-cards)) hole-cards)
           (do (log/info "Pair hole")
-              (max (call game-state) 300))
+              (max (bet-at-most game-state 200) (* times-blind 3)))
           (strong-high-ranked hole-cards)
           (do (log/info "Strong high ranked")
-              (max (call game-state) 200))
+              (call-to-x-blind game-state 4))
           (high-ranked-hand hole-cards)
           (do (log/info "High ranked hole")
-              (bet-at-most game-state 200))
+              (bet-at-most game-state (times-blind game-state 2)))
           (and (connected-hand hole-cards) (suited hole-cards))
           (do (log/info "Connected hole")
               (call-to-10x-blind game-state))

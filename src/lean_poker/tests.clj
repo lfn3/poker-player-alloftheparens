@@ -18,7 +18,8 @@
                                :version    "Default random player",
                                :stack      1590,
                                :bet        0,
-                               :hole_cards []}]}]
+                               :hole_cards []}]
+                    :small_blind 10}]
     (is (= 200 (player/bet-request game-state)))))
 
 (deftest have-pair
