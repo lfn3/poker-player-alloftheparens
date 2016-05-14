@@ -147,7 +147,7 @@
                (max (call game-state) 300))
           (have-pair? (:rank (first hole-cards)) hole-cards)
           (do (log/info "Pair hole")
-              (max (bet-at-most game-state 200) (* times-blind 3)))
+              (max (bet-at-most game-state 200) (times-blind game-state 3)))
           (strong-high-ranked hole-cards)
           (do (log/info "Strong high ranked")
               (call-to-x-blind game-state 4))

@@ -23,6 +23,7 @@
        {:status  200
         :headers {"Content-Type" "text/html"}
         :body    (str bet)}
+
        (catch Exception e
          (log/error e)
          {:status  200
