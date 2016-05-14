@@ -51,6 +51,16 @@
 (defn match-blind [game-state]
   (call-to-x-blind game-state 2))
 
+(defn raise-to [game-state amount]
+  (let [us (get-us game-state)
+        bet-so-far (:bet us)]
+    (- amount bet-so-far)))
+
+(defn bet-at-most [game-state amount]
+  (if (> (highest-bet game-state) amount)
+    0
+    (raise-to game-state amount)))
+
 (defn find-pairs
   ([cards]
    (map #(find-pairs %1 cards) ranks))
@@ -102,6 +112,12 @@
   [cards]
   (every? identity (map face-card cards)))
 
+(defn strong-high-ranked
+  [cards]
+  (and (high-ranked-hand cards)
+       (some #(= (:rank %1) "A") cards)))
+
+
 (defn all-in [game-state]
   (let [us (get-us game-state)]
     (:stack us)))
@@ -122,10 +138,13 @@
          (cond
           (have-pair? (:rank (first hole-cards)) hole-cards)
           (do (log/info "Pair hole")
-              (max (call game-state) 500))
+              (max (call game-state) 300))
+          (strong-high-ranked hole-cards)
+          (do (log/info "Strong high ranked")
+              (max (call game-state) 200))
           (high-ranked-hand hole-cards)
           (do (log/info "High ranked hole")
-              (max (call game-state) 200))
+              (bet-at-most game-state 200))
           (and (connected-hand hole-cards) (suited hole-cards))
           (do (log/info "Connected hole")
               (call-to-10x-blind game-state))
