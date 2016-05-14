@@ -80,3 +80,39 @@
 (deftest inside-have-pair
   (is (not (player/have-pair? [{:rank "A", :suit "diamonds"} {:rank "10", :suit "diamonds"}])))
   (is (true? (player/have-pair? [{:rank "A", :suit "diamonds"} {:rank "A", :suit "diamonds"}]))))
+
+(deftest match-blind-test
+  (let [should-fold {:community_cards []
+                     :players         [{:id         1,
+                                        :name       "Bob",
+                                        :status     "active",
+                                        :version    "Default random player",
+                                        :stack      1590,
+                                        :bet        0,
+                                        :hole_cards [{:rank "5", :suit "diamonds"} {:rank "9", :suit "spades"}]}
+                                       {:id         2,
+                                        :name       "Bob",
+                                        :status     "active",
+                                        :version    "Default random player",
+                                        :stack      1590,
+                                        :bet        200,
+                                        :hole_cards []}]
+                     :small_blind 10}]
+    (is (= 0 (player/bet-request should-fold))))
+  (let [should-play {:community_cards []
+                     :players         [{:id         1,
+                                        :name       "Bob",
+                                        :status     "active",
+                                        :version    "Default random player",
+                                        :stack      1590,
+                                        :bet        0,
+                                        :hole_cards [{:rank "5", :suit "diamonds"} {:rank "9", :suit "spades"}]}
+                                       {:id         2,
+                                        :name       "Bob",
+                                        :status     "active",
+                                        :version    "Default random player",
+                                        :stack      1590,
+                                        :bet        20,
+                                        :hole_cards []}]
+                     :small_blind 10}]
+    (is (= 20 (player/bet-request should-play)))))

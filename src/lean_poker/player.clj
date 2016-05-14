@@ -41,7 +41,7 @@
     (- highest-bet our-bet)))
 
 (defn call-to-x-blind [game-state blind-multipler]
-  (if (< (highest-bet game-state) (* blind-multipler (:small_blind game-state)))
+  (if (<= (highest-bet game-state) (* blind-multipler (:small_blind game-state)))
     (call game-state)
     0))
 
@@ -149,7 +149,7 @@
           (do (log/info "Connected hole")
               (call-to-10x-blind game-state))
           :default (do (log/info "Default hole")
-                       0)))
+                       (match-blind game-state))))
 
        (cond
          (is-flush all-cards)
