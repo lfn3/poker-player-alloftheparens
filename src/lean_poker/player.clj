@@ -32,6 +32,20 @@
          (filter #(= rank (:rank %1))
                  cards))))
 
+(defn to-number [rank]
+  (cond
+    (= "A" rank) 14
+    (= "K" rank) 13
+    (= "Q" rank) 12
+    (= "J" rank) 11
+    :default (read-string rank)))
+
+(defn connected-hand
+  [cards]
+  (let [[first second] (map (comp to-number :rank) cards)]
+    (Integer/ (- first second))))
+
+
 (defn face-card [card]
   (some #{\A \K \Q \J \0} (:rank card)))
 (defn is-flush [cards]
@@ -66,12 +80,18 @@
 
      (if (not (after-flop game-state))
        (cond
-         (have-pair? (:rank (first hole-cards)) hole-cards) 500
-         (high-ranked-hand hole-cards) 200
+         (have-pair? (:rank (first hole-cards)) hole-cards)
+            500
+         (high-ranked-hand hole-cards)
+            200
          :default 0)
 
        (cond
-         (is-flush all-cards) (all-in game-state)
+         (is-flush all-cards)
+            (all-in game-state)
+         (not (and (have-pair? (:rank (first hole-cards)) hole-cards)
+                   (high-ranked-hand hole-cards)))
+            0
          :default (call game-state))))))                                                ;fold
 
 (defn showdown
