@@ -7,7 +7,7 @@
                  :dealer 1,
                  :in_action 1,
                  :minimum_raise 240,
-                 :community_cards [{:rank "4", :suit "spades"} {:rank "A", :suit "hearts"} {:rank "6", :suit "clubs"}],
+                 :community_cards [],
                  :round 0,
                  :current_buy_in 320,
                  :tournament_id "550d1d68cd7bd10003000003",
@@ -94,6 +94,7 @@
 
 (defn face-card [card]
   (some #{\A \K \Q \J \0} (:rank card)))
+
 (defn is-flush [cards]
   (some identity (map (fn [suit] (= 5 (count (filter #(= suit (:suit %1)) cards)))) suits)))
 
@@ -106,7 +107,7 @@
     (:stack us)))
 
 (defn after-flop [game-state]
-  (some? (:community_cards game-state)))
+  (pos? (count (:community_cards game-state))))
 
 (defn bet-request
   ([] (bet-request game-state))
