@@ -19,16 +19,16 @@
     "bet_request"
     (try
       (let [bet (player/bet-request (game-state req))]
-       (log/info "Bet" bet)
-       {:status  200
-        :headers {"Content-Type" "text/html"}
-        :body    (str bet)}
+        (log/info "Bet" bet)
+        {:status  200
+         :headers {"Content-Type" "text/html"}
+         :body    (str bet)})
 
-       (catch Exception e
-         (log/error e)
-         {:status  200
-          :headers {"Content-Type" "text/html"}
-          :body    0})))
+      (catch Exception e
+        (log/error e)
+        {:status  200
+         :headers {"Content-Type" "text/html"}
+         :body    0}))
 
     "showdown"
     (let [showdown (player/showdown (game-state req))]
