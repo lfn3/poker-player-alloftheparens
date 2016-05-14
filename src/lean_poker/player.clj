@@ -1,4 +1,5 @@
-(ns lean-poker.player)
+(ns lean-poker.player
+  (:require [taoensso.timbre :as log]))
 
 (def version "Clojure-y pairs")
 
@@ -39,10 +40,16 @@
         our-bet (:bet (get-us game-state))]
     (- highest-bet our-bet)))
 
-(defn call-to-10x-blind [game-state]
-  (if (< (highest-bet game-state) (* 10 (:small_blind game-state)))
+(defn call-to-x-blind [game-state blind-multipler]
+  (if (< (highest-bet game-state) (* blind-multipler (:small_blind game-state)))
     (call game-state)
     0))
+
+(defn call-to-10x-blind [game-state]
+  (call-to-x-blind game-state 10))
+
+(defn match-blind [game-state]
+  (call-to-x-blind game-state 2))
 
 (defn find-pairs
   ([cards]
@@ -112,27 +119,29 @@
      (if (not (after-flop game-state))
        (cond
          (have-pair? (:rank (first hole-cards)) hole-cards)
-         (do (prn "Pair hole")
+         (do (log/info "Pair hole")
              (max (call game-state) 500))
          (high-ranked-hand hole-cards)
-         (do (prn "High ranked hole")
+         (do (log/info "High ranked hole")
              (max (call game-state) 200))
          (and (connected-hand hole-cards) (suited hole-cards))
-         (do (prn "Connected hole")
+         (do (log/info "Connected hole")
            (call-to-10x-blind game-state))
-         :default (do (prn "Default hole")
+         :default (do (log/info "Default hole")
                     0))
 
        (cond
          (is-flush all-cards)
-         (do (prn "flush on the table")
+         (do (log/info "flush on the table")
            (all-in game-state))
          (is-straight all-cards)
-         (do (prn "straight on the table")
+         (do (log/info "straight on the table")
              (all-in game-state))
          (not (have-pair? all-cards))
-            0
-         :default (call game-state))))))                                                ;fold
+         (do (log/info "No pairs or anything, folding")
+           0)
+         :default (do (log/info "Default, calling.")
+                    (call game-state)))))))
 
 (defn showdown
   [game-state]
