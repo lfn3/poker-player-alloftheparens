@@ -27,6 +27,20 @@
 (def suits ["hearts" "spades" "diamonds" "clubs"])
 (def ranks (map str (concat (range 2 11) ["J" "Q" "K" "A"])))
 
+(defn highest-bet
+  [game-state]
+  (apply max (map :bet (:players game-state))))
+
+(defn call [game-state]
+  (let [highest-bet (highest-bet game-state)
+        our-bet (:bet (get-us game-state))]
+    (- highest-bet our-bet)))
+
+(defn call-to-10x-blind [game-state]
+  (if (< (highest-bet game-state) (* 10 (:small_blind game-state)))
+    (call game-state)
+    0))
+
 (defn find-pairs
   ([cards]
    (map #(find-pairs %1 cards) ranks))
@@ -56,6 +70,10 @@
   (let [[first second] (map (comp to-number :rank) cards)]
     (> 3 (max (- first second) (- second first)))))
 
+(defn suited
+  [[first & rest]]
+  (every? #(= (:suit first) (:suit %1)) rest))
+
 (defn face-card [card]
   (some #{\A \K \Q \J \0} (:rank card)))
 (defn is-flush [cards]
@@ -71,12 +89,6 @@
 (defn all-in [game-state]
   (let [us (get-us game-state)]
     (:stack us)))
-
-(defn call [game-state]
-  ;TODO wrong amount?
-  (let [highest-bet (apply max (map :bet (:players game-state)))
-        our-bet (:bet (get-us game-state))]
-    (- highest-bet our-bet)))
 
 (defn after-flop [game-state]
   (some? (:community_cards game-state)))
@@ -95,6 +107,8 @@
             500
          (high-ranked-hand hole-cards)
             200
+         (and (connected-hand hole-cards) (suited hole-cards))
+            (call-to-10x-blind game-state)
          :default 0)
 
        (cond
