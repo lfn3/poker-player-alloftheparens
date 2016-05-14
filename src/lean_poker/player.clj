@@ -74,7 +74,7 @@
   ([cards]
    (let [cards-nums (sort (map (comp to-number :rank) cards))
          partitioned-cards-on-table (mapcat #(partition 5 (drop %1 cards-nums)) (range 3))]
-     (map ))))
+   )))
 
 (defn connected-hand
   [cards]
