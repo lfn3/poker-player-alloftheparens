@@ -117,18 +117,19 @@
          all-cards (concat hole-cards community_cards)]
 
      (if (not (after-flop game-state))
-       (cond
-         (have-pair? (:rank (first hole-cards)) hole-cards)
-         (do (log/info "Pair hole")
-             (max (call game-state) 500))
-         (high-ranked-hand hole-cards)
-         (do (log/info "High ranked hole")
-             (max (call game-state) 200))
-         (and (connected-hand hole-cards) (suited hole-cards))
-         (do (log/info "Connected hole")
-           (call-to-10x-blind game-state))
-         :default (do (log/info "Default hole")
-                    0))
+       (do (log/info "Our cards" hole-cards)
+         (cond
+          (have-pair? (:rank (first hole-cards)) hole-cards)
+          (do (log/info "Pair hole")
+              (max (call game-state) 500))
+          (high-ranked-hand hole-cards)
+          (do (log/info "High ranked hole")
+              (max (call game-state) 200))
+          (and (connected-hand hole-cards) (suited hole-cards))
+          (do (log/info "Connected hole")
+              (call-to-10x-blind game-state))
+          :default (do (log/info "Default hole")
+                       0)))
 
        (cond
          (is-flush all-cards)

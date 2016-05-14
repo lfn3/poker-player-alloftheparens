@@ -9,7 +9,7 @@
                                :status     "active",
                                :version    "Default random player",
                                :stack      1590,
-                               :bet        200,
+                               :bet        0,
                                :hole_cards [{:rank "A", :suit "diamonds"} {:rank "10", :suit "diamonds"}]}
                               {:id         2,
                                :name       "Bob",
@@ -40,3 +40,7 @@
                                :bet        80,
                                :hole_cards [{:rank "A", :suit "hearts"} {:rank "A", :suit "hearts"}]}]}]
     (is (= 1590 (player/bet-request game-state)))))
+
+(deftest inside-have-pair
+  (is (not (player/have-pair? [{:rank "A", :suit "diamonds"} {:rank "10", :suit "diamonds"}])))
+  (is (true? (player/have-pair? [{:rank "A", :suit "diamonds"} {:rank "A", :suit "diamonds"}]))))
