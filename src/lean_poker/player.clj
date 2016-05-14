@@ -25,12 +25,23 @@
                  :pot 400})
 
 (def suits ["hearts" "spades" "diamonds" "clubs"])
+(def ranks (map str (concat (range 2 11) ["J" "Q" "K" "A"])))
+
+(defn find-pairs
+  ([cards]
+   (map #(find-pairs %1 cards) ranks))
+  ([rank cards]
+   (= 2 (count
+          (filter #(= rank (:rank %1))
+                  cards)))))
 
 (defn have-pair?
-  [rank cards]
-  (= 2 (count
-         (filter #(= rank (:rank %1))
-                 cards))))
+  ([cards]
+   (some identity (map #(have-pair? %1 cards) ranks)))
+  ([rank cards]
+   (= 2 (count
+          (filter #(= rank (:rank %1))
+                  cards)))))
 
 (defn to-number [rank]
   (cond
@@ -43,8 +54,7 @@
 (defn connected-hand
   [cards]
   (let [[first second] (map (comp to-number :rank) cards)]
-    (Integer/ (- first second))))
-
+    (> 3 (max (- first second) (- second first)))))
 
 (defn face-card [card]
   (some #{\A \K \Q \J \0} (:rank card)))
@@ -63,6 +73,7 @@
     (:stack us)))
 
 (defn call [game-state]
+  ;TODO wrong amount?
   (let [highest-bet (apply max (map :bet (:players game-state)))
         our-bet (:bet (get-us game-state))]
     (- highest-bet our-bet)))
@@ -89,8 +100,7 @@
        (cond
          (is-flush all-cards)
             (all-in game-state)
-         (not (and (have-pair? (:rank (first hole-cards)) hole-cards)
-                   (high-ranked-hand hole-cards)))
+         (not (have-pair? all-cards))
             0
          :default (call game-state))))))                                                ;fold
 
